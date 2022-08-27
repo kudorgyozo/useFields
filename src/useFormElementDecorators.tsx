@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 export type FormFieldProps<T> = {
     value: T,
     id: string,
@@ -16,10 +18,13 @@ const Feedback = <T,>(props: FormFieldProps<T>) => {
     const defaultFeedback = (value: T) => {
         switch (typeof value) {
             case "string":
-                return value;
+                return `S: ${value.toString().length}`;
             case "number":
-            case "bigint":
-                return value.toString();
+                return `N: ${value.toString().length}`;
+            case "boolean":
+                return `B: ${value.toString()}`;
+            // case "object":
+            //     return JSON.stringify(value);
             default:
                 return "";
         }
@@ -28,14 +33,28 @@ const Feedback = <T,>(props: FormFieldProps<T>) => {
     return <div>{props.onFeedback ? props.onFeedback(props.value) : defaultFeedback(props.value)}</div>
 }
 
-const FormField = <T,>(props: FormFieldProps<T>) => {
-    return (<div>
+export const FormField = <T,>(props: FormFieldProps<T>) => {
+    const [focused, setFocused] = useState(false);
+
+    const handleFocus = () => {
+        console.log('focus');
+        setFocused(true);
+    };
+
+    const handleBlur = () => {
+        console.log('blur');
+        setFocused(false);
+    };
+
+    return (<div onFocus={handleFocus} onBlur={handleBlur}>
         <Label {...props} />
         {props.children}
-        <Feedback {...props} />
+        {focused &&
+            <Feedback {...props} />
+        }
     </div>)
 };
 
-export const useFormFields = <String, >() => {
+export const useFormFields = () => {
     return { FormField };
 };
